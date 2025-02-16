@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <div id="quiz-container">
+            <h2 class="text-2xl font-bold mb-4">Question <span id="question-number">1</span></h2>
+            <p id="question-text" class="text-lg mb-4"></p>
+            <div id="options" class="space-y-2"></div>
+            <button id="next-btn" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded" style="display: none;">Next</button>
+        </div>
+        <div id="result-container" style="display: none;">
+            <h2 class="text-2xl font-bold mb-4">Quiz Complete!</h2>
+            <p class="text-lg mb-4">Your score: <span id="score">0</span>/10</p>
+            <input type="text" id="name-input" placeholder="Enter your name" class="border p-2 rounded mb-4">
+            <button onclick="submitScore()" class="bg-green-500 text-white px-4 py-2 rounded">Submit Score</button>
+        </div>
+    </div>
+
+    <script>
+        // Parse the questions from the server
+        const questionsData = "{{ questions | safe }}";
+        const questions = JSON.parse(questionsData.replace(/\\/g, ''));
+        let currentQuestion = 0;
+        let score = 0;
+
+        function showQuestion() {
+            if (currentQuestion >= questions.length) {
+                showResult();
+                return;
+            }
+
+            const question = questions[currentQuestion];
+            document.getElementById('question-number').textContent = currentQuestion + 1;
+            document.getElementById('question-text').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'w-full text-left p-2 rounded border hover:bg-gray-200';
+                button.textContent = option;
+                button.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function selectAnswer(index) {
+            const question = questions[currentQuestion];
+            if (index === question.correct) {
+                score++;
+            }
+            
+            document.getElementById('next-btn').style.display = 'block';
+            const options = document.querySelectorAll('#options button');
+            options.forEach(button => {
+                button.disabled = true;
+                if (options[question.correct] === button) {
+                    button.className = 'w-full text-left p-2 rounded border bg-green-200';
+                } else if (button === options[index] && index !== question.correct) {
+                    button.className = 'w-full text-left p-2 rounded border bg-red-200';
+                }
+            });
+        }
+
+        document.getElementById('next-btn').onclick = () => {
+            currentQuestion++;
+            document.getElementById('next-btn').style.display = 'none';
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        };
+
+        function showResult() {
+            document.getElementById('quiz-container').style.display = 'none';
+            document.getElementById('result-container').style.display = 'block';
+            document.getElementById('score').textContent = score;
+            
+            if (score === 10) {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        function submitScore() {
+            const name = document.getElementById('name-input').value;
+            if (!name) {
+                alert('Please enter your name');
+                return;
+            }
+            
+            fetch('/submit_score', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: name,
+                    score: score
+                })
+            }).then(() => {
+                window.location.href = '/leaderboard';
+            });
+        }
+
+        // Start the quiz
+        showQuestion();
+    </script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz App</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8 max-w-2xl">
+        <div class="text-center">
+            <h1 class="text-3xl font-bold mb-6">Welcome to the Quiz!</h1>
+            
+            <!-- QR Code Section -->
+            <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <h2 class="text-xl font-semibold mb-4">Scan QR Code to Start Quiz</h2>
+                <div class="flex justify-center mb-4">
+                    <img src="{{ url_for('static', filename='qr_code.png') }}" alt="QR Code" class="w-64 h-64">
+                </div>
+                <p class="text-gray-600 mb-2">Or visit:</p>
+                <p class="text-blue-500 break-all">{{ quiz_url }}</p>
+            </div>
+            
+            <!-- Navigation Buttons -->
+            <div class="flex justify-center space-x-4">
+                <a href="/quiz" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 transition">Start Quiz</a>
+                <a href="/leaderboard" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 transition">Leaderboard</a>
+            </div>
+            
+            <!-- Instructions -->
+            <div class="mt-8 text-left bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4">Instructions</h2>
+                <ul class="list-disc pl-5 space-y-2">
+                    <li>The quiz consists of 10 multiple-choice questions</li>
+                    <li>Each question has only one correct answer</li>
+                    <li>Score a perfect 10/10 to see a special celebration!</li>
+                    <li>Submit your score to appear on the leaderboard</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
